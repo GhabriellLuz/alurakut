@@ -6,7 +6,7 @@ import {
   AlurakutProfileSidebarMenuDefault,
   OrkutNostalgicIconSet,
 } from '../src/lib/AlurakutCommons';
-import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
+import { ComunityInfoSidebar } from '../src/components/ComunityInfoSidebar';
 
 const ProfileSidebar = (props) => {
   return (
@@ -29,8 +29,8 @@ const ProfileSidebar = (props) => {
 };
 
 export default function Home() {
-  const githubUser = 'ghabriellluz';
-  const [comunidades, setComunidades] = React.useState([
+  const githubUser = 'GhabriellLuz';
+  const [comunidades, setComunidades] = useState([
     {
       id: new Date().toISOString,
       title: 'Eu odeio acordar cedo',
@@ -46,6 +46,17 @@ export default function Home() {
     'peas',
   ];
 
+  const [seguidores, setSeguidores] = React.useState([]);
+  React.useEffect(() => {
+    fetch(`https://api.github.com/users/${githubUser}/followers`)
+      .then((resposta) => {
+        return resposta.json();
+      })
+      .then((respostaCompleta) => {
+        setSeguidores(respostaCompleta);
+      });
+  }, []);
+
   return (
     <>
       <AlurakutMenu githubUser={githubUser} />
@@ -55,7 +66,7 @@ export default function Home() {
         </div>
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
           <Box>
-            <h1 className="title">Bem vindo</h1>
+            <h1 className="title">Bem vindo, {githubUser}!</h1>
 
             <OrkutNostalgicIconSet confiavel={2} legal={1} sexy={3} />
           </Box>
@@ -66,8 +77,6 @@ export default function Home() {
               onSubmit={(event) => {
                 event.preventDefault();
                 const dadosDoForm = new FormData(event.target);
-                console.log('Campo: ', dadosDoForm.get('title'));
-                console.log('Campo: ', dadosDoForm.get('image'));
 
                 const comunidade = {
                   id: new Date().toISOString,
@@ -84,6 +93,7 @@ export default function Home() {
                   name="title"
                   aria-label="Qual vai ser o nome da sua comunidade?"
                   type="text"
+                  required
                 />
               </div>
               <div>
@@ -91,6 +101,7 @@ export default function Home() {
                   placeholder="Coloque uma URL para usarmos de capa"
                   name="image"
                   aria-label="Coloque uma URL para usarmos de capa"
+                  required
                 />
               </div>
 
@@ -102,38 +113,12 @@ export default function Home() {
           className="profileRelationsArea"
           style={{ gridArea: 'profileRelationsArea' }}
         >
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Comunidades ({comunidades.length})</h2>
-            <ul>
-              {comunidades.map((itemAtual) => {
-                return (
-                  <li key={itemAtual.id}>
-                    <a href={`/users/${itemAtual.title}`}>
-                      <img src={itemAtual.image} />
-                      <span>{itemAtual.title}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Pessoas da comunidade ({pessoasFavoritas.length})
-            </h2>
-            <ul>
-              {pessoasFavoritas.map((itemAtual) => {
-                return (
-                  <li key={itemAtual}>
-                    <a href={`https://github.com/${itemAtual}`} target="_blank">
-                      <img src={`https://github.com/${itemAtual}.png`} />
-                      <span>{itemAtual}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
+          <ComunityInfoSidebar title="Seguidores" collection={seguidores} />
+          <ComunityInfoSidebar title="Comunidades" collection={comunidades} />
+          <ComunityInfoSidebar
+            title="Pessoas da comunidade"
+            collection={pessoasFavoritas}
+          />
         </div>
       </MainGrid>
     </>
