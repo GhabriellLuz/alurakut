@@ -30,13 +30,7 @@ const ProfileSidebar = (props) => {
 
 export default function Home() {
   const githubUser = 'GhabriellLuz';
-  const [comunidades, setComunidades] = useState([
-    {
-      id: new Date().toISOString,
-      title: 'Eu odeio acordar cedo',
-      image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg',
-    },
-  ]);
+  const [comunidades, setComunidades] = useState([]);
   const pessoasFavoritas = [
     'gustavoguanabara',
     'filipedeschamps',
@@ -54,6 +48,29 @@ export default function Home() {
       })
       .then((respostaCompleta) => {
         setSeguidores(respostaCompleta);
+      });
+    // API GraphQL
+    fetch('https://graphql.datocms.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: '79493696e8515d819b96a4af1cc825',
+      },
+      body: JSON.stringify({
+        query: `query {
+        allCommunities {
+          id
+          title
+          imageUrl
+          creatorSlug
+        }
+      }`,
+      }),
+    })
+      .then((response) => response.json())
+      .then((respostaCompleta) => {
+        setComunidades(respostaCompleta.data.allCommunities);
       });
   }, []);
 
@@ -79,12 +96,21 @@ export default function Home() {
                 const dadosDoForm = new FormData(event.target);
 
                 const comunidade = {
-                  id: new Date().toISOString,
                   title: dadosDoForm.get('title'),
-                  image: dadosDoForm.get('image'),
+                  imageUrl: dadosDoForm.get('image'),
+                  creatorSlug: githubUser,
                 };
 
-                setComunidades([...comunidades, comunidade]);
+                fetch('/api/communities', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(comunidade),
+                }).then(async (res) => {
+                  const { registroCriado } = await res.json();
+                  setComunidades([...comunidades, registroCriado]);
+                });
               }}
             >
               <div>

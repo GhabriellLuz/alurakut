@@ -19,10 +19,10 @@ export function ComunityInfoSidebar(props) {
             key = itemAtual.id;
             url = itemAtual.login
               ? `https://github.com/${itemAtual.login}`
-              : itemAtual.image;
+              : itemAtual.imageUrl;
             imgSrc = itemAtual.login
               ? `https://github.com/${itemAtual.login}.png`
-              : itemAtual.image;
+              : itemAtual.imageUrl;
             title = itemAtual.login ? itemAtual.login : itemAtual.title;
           }
           return (
